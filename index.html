@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viral Clip Finder</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;
+}
+
+body{
+  background:#0f172a;
+  color:white;
+  min-height:100vh;
+}
+
+header{
+  padding:30px 20px;
+  text-align:center;
+  border-bottom:1px solid #1e293b;
+  background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+h1{
+  font-size:2.5rem;
+  margin-bottom:8px;
+  background:linear-gradient(135deg, #6366f1, #a855f7);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+header p{
+  color:#94a3b8;
+  font-size:1rem;
+}
+
+.search-container{
+  max-width:1000px;
+  margin:30px auto;
+  padding:0 20px;
+}
+
+.search-bar{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+input,select{
+  padding:12px 16px;
+  border:1px solid #334155;
+  border-radius:10px;
+  background:#1e293b;
+  color:white;
+  font-size:14px;
+  transition:all 0.2s;
+}
+
+input:focus,select:focus{
+  outline:none;
+  border-color:#6366f1;
+  box-shadow:0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+input{
+  flex:1;
+  min-width:200px;
+}
+
+input::placeholder{
+  color:#64748b;
+}
+
+select{
+  min-width:120px;
+}
+
+button{
+  padding:12px 24px;
+  border:none;
+  border-radius:10px;
+  background:#6366f1;
+  color:white;
+  cursor:pointer;
+  font-weight:600;
+  font-size:14px;
+  transition:all 0.2s;
+  white-space:nowrap;
+}
+
+button:hover{
+  background:#4f46e5;
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+button:active{
+  transform:translateY(0);
+}
+
+.reset-btn{
+  background:#475569;
+  padding:12px 18px;
+}
+
+.reset-btn:hover{
+  background:#334155;
+  box-shadow:0 4px 12px rgba(71, 85, 105, 0.3);
+}
+
+.results-info{
+  padding:0 20px 20px;
+  color:#94a3b8;
+  font-size:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  max-width:1000px;
+  margin:0 auto;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:20px;
+  padding:0 20px 40px;
+  max-width:1400px;
+  margin:0 auto;
+}
+
+.card{
+  background:#1e293b;
+  border:1px solid #334155;
+  border-radius:15px;
+  overflow:hidden;
+  transition:all 0.3s;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+}
+
+.card:hover{
+  transform:translateY(-8px);
+  border-color:#6366f1;
+  box-shadow:0 12px 24px rgba(99, 102, 241, 0.2);
+}
+
+.thumbnail{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+  background:#0f172a;
+}
+
+.content{
+  padding:16px;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+.card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:start;
+  gap:10px;
+  margin-bottom:8px;
+}
+
+h3{
+  flex:1;
+  font-size:1.1rem;
+  line-height:1.4;
+  margin:0;
+  color:#f1f5f9;
+}
+
+.platform{
+  display:inline-block;
+  background:#334155;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:600;
+  white-space:nowrap;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+
+.platform.tiktok{
+  background:rgba(0, 0, 0, 0.5);
+  color:#25f4ee;
+}
+
+.platform.youtube{
+  background:rgba(255, 0, 0, 0.1);
+  color:#ff0000;
+}
+
+.platform.instagram{
+  background:rgba(217, 70, 239, 0.1);
+  color:#d946ef;
+}
+
+.stats{
+  display:flex;
+  gap:16px;
+  margin:12px 0;
+  color:#94a3b8;
+  font-size:13px;
+}
+
+.stat{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+.creator{
+  font-size:12px;
+  color:#64748b;
+  margin:8px 0;
+}
+
+.date{
+  font-size:11px;
+  color:#475569;
+}
+
+.score-container{
+  margin-top:auto;
+  padding-top:12px;
+  border-top:1px solid #334155;
+}
+
+.score{
+  color:#22c55e;
+  font-weight:700;
+  font-size:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.score-bar{
+  width:100%;
+  height:6px;
+  background:#334155;
+  border-radius:999px;
+  margin-top:6px;
+  overflow:hidden;
+}
+
+.score-fill{
+  height:100%;
+  background:linear-gradient(90deg, #6366f1, #22c55e);
+  transition:width 0.3s;
+}
+
+.no-results{
+  text-align:center;
+  padding:60px 20px;
+  color:#64748b;
+}
+
+.no-results h2{
+  font-size:1.5rem;
+  margin-bottom:10px;
+  color:#94a3b8;
+}
+
+@media (max-width:768px){
+  h1{
+    font-size:1.8rem;
+  }
+
+  .search-bar{
+    flex-direction:column;
+  }
+
+  input,select,button{
+    width:100%;
+  }
+
+  .grid{
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+    gap:16px;
+    padding:0 16px 30px;
+  }
+
+  .results-info{
+    flex-direction:column;
+    gap:10px;
+    align-items:flex-start;
+  }
+}
+
+@media (max-width:480px){
+  h1{
+    font-size:1.5rem;
+  }
+
+  header{
+    padding:20px 16px;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+    gap:12px;
+    padding:0 12px 20px;
+  }
+
+  .search-container{
+    padding:0 16px;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔥 Viral Clip Finder</h1>
+  <p>Discover high-performing clips before they explode</p>
+</header>
+
+<div class="search-container">
+  <div class="search-bar">
+    <input 
+      id="searchInput" 
+      placeholder="Search niche, keyword, creator..."
+      aria-label="Search clips"
+    >
+    <select id="platformFilter" aria-label="Filter by platform">
+      <option>All Platforms</option>
+      <option>TikTok</option>
+      <option>YouTube</option>
+      <option>Instagram</option>
+    </select>
+    <button onclick="searchClips()" aria-label="Search">Search</button>
+    <button class="reset-btn" onclick="resetSearch()" aria-label="Reset search">Reset</button>
+  </div>
+</div>
+
+<div class="results-info">
+  <span id="resultCount"></span>
+  <span id="sortInfo"></span>
+</div>
+
+<div class="grid" id="results"></div>
+
+<script>
+const clips = [
+  {
+    title:"AI Side Hustle Goes Viral",
+    platform:"TikTok",
+    views:"4.2M",
+    likes:"580K",
+    score:98,
+    creator:"@techguru",
+    date:"2 days ago",
+    thumb:"https://picsum.photos/600/400?random=1"
+  },
+  {
+    title:"Motivation Edit",
+    platform:"Instagram",
+    views:"2.8M",
+    likes:"340K",
+    score:91,
+    creator:"@inspiration_hub",
+    date:"5 days ago",
+    thumb:"https://picsum.photos/600/400?random=2"
+  },
+  {
+    title:"Crazy Football Clip",
+    platform:"YouTube",
+    views:"8.5M",
+    likes:"720K",
+    score:96,
+    creator:"@sportscentral",
+    date:"1 day ago",
+    thumb:"https://picsum.photos/600/400?random=3"
+  },
+  {
+    title:"Programming Tutorial Breakdown",
+    platform:"YouTube",
+    views:"5.2M",
+    likes:"480K",
+    score:94,
+    creator:"@codeninja",
+    date:"3 days ago",
+    thumb:"https://picsum.photos/600/400?random=4"
+  },
+  {
+    title:"Fashion Haul & Styling Tips",
+    platform:"Instagram",
+    views:"3.1M",
+    likes:"425K",
+    score:89,
+    creator:"@fashionista",
+    date:"4 days ago",
+    thumb:"https://picsum.photos/600/400?random=5"
+  },
+  {
+    title:"Gaming Clutch Moment",
+    platform:"TikTok",
+    views:"6.8M",
+    likes:"890K",
+    score:99,
+    creator:"@gamer_pro",
+    date:"1 day ago",
+    thumb:"https://picsum.photos/600/400?random=6"
+  },
+  {
+    title:"Cooking Hack Compilation",
+    platform:"TikTok",
+    views:"3.5M",
+    likes:"320K",
+    score:87,
+    creator:"@chef_quick",
+    date:"6 days ago",
+    thumb:"https://picsum.photos/600/400?random=7"
+  },
+  {
+    title:"Fitness Transformation",
+    platform:"Instagram",
+    views:"4.9M",
+    likes:"650K",
+    score:93,
+    creator:"@fitnessjourney",
+    date:"2 days ago",
+    thumb:"https://picsum.photos/600/400?random=8"
+  },
+  {
+    title:"Podcast Viral Moment",
+    platform:"YouTube",
+    views:"7.2M",
+    likes:"610K",
+    score:95,
+    creator:"@podcastpro",
+    date:"1 day ago",
+    thumb:"https://picsum.photos/600/400?random=9"
+  }
+];
+
+function render(data){
+  const container=document.getElementById("results");
+  const resultCount=document.getElementById("resultCount");
+  
+  resultCount.textContent=`Showing ${data.length} clip${data.length !== 1 ? 's' : ''}`;
+
+  if(data.length === 0){
+    container.innerHTML=`
+      <div class="no-results" style="grid-column:1/-1;">
+        <h2>😕 No clips found</h2>
+        <p>Try adjusting your search or filters</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML=data.map(item=>`
+    <div class="card">
+      <img 
+        class="thumbnail" 
+        src="${item.thumb}" 
+        alt="${item.title}"
+        loading="lazy"
+      >
+      <div class="content">
+        <div class="card-header">
+          <h3>${item.title}</h3>
+          <span class="platform ${item.platform.toLowerCase()}">${item.platform}</span>
+        </div>
+        
+        <p class="creator">👤 ${item.creator}</p>
+        <p class="date">📅 ${item.date}</p>
+
+        <div class="stats">
+          <div class="stat">
+            <span>👀</span>
+            <span>${item.views}</span>
+          </div>
+          <div class="stat">
+            <span>❤️</span>
+            <span>${item.likes}</span>
+          </div>
+        </div>
+
+        <div class="score-container">
+          <div class="score">
+            <span>Viral Score</span>
+            <span>${item.score}/100</span>
+          </div>
+          <div class="score-bar">
+            <div class="score-fill" style="width:${item.score}%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function searchClips(){
+  const keyword=document
+    .getElementById("searchInput")
+    .value
+    .toLowerCase();
+
+  const platform=document
+    .getElementById("platformFilter")
+    .value;
+
+  const filtered=clips.filter(c=>{
+    const keywordMatch=
+      c.title.toLowerCase().includes(keyword) ||
+      c.creator.toLowerCase().includes(keyword);
+
+    const platformMatch=
+      platform==="All Platforms" || c.platform===platform;
+
+    return keywordMatch && platformMatch;
+  }).sort((a,b)=>b.score-a.score);
+
+  render(filtered);
+}
+
+function resetSearch(){
+  document.getElementById("searchInput").value="";
+  document.getElementById("platformFilter").value="All Platforms";
+  render(clips.sort((a,b)=>b.score-a.score));
+}
+
+document.getElementById("searchInput").addEventListener("keypress",function(e){
+  if(e.key==="Enter"){
+    searchClips();
+  }
+});
+
+render(clips.sort((a,b)=>b.score-a.score));
+</script>
+
+</body>
+</html>
